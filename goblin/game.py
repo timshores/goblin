@@ -2,12 +2,19 @@
 Main game logic and state management for Goblin
 """
 import sys
-import tty
-import termios
+import os
+import platform
 from typing import List, Optional
 from goblin.map_generator import MapGenerator, Tile
 from goblin.renderer import Renderer
 from goblin.entities import Entity, EntityType, Player
+
+# Platform-specific imports for keyboard input
+if platform.system() == 'Windows':
+    import msvcrt
+else:
+    import tty
+    import termios
 
 
 class GameState:
@@ -140,32 +147,58 @@ class Game:
             self._handle_input(key)
 
     def _clear_screen(self):
-        """Clear the terminal screen"""
-        print("\033[2J\033[H", end="")
+        """Clear the terminal screen (cross-platform)"""
+        if platform.system() == 'Windows':
+            os.system('cls')
+        else:
+            os.system('clear')
 
     def _get_key(self) -> str:
-        """Get a single keypress from the user"""
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
+        """Get a single keypress from the user (cross-platform)"""
+        if platform.system() == 'Windows':
+            # Windows implementation using msvcrt
+            ch = msvcrt.getch()
 
-            # Handle arrow keys (escape sequences)
-            if ch == '\x1b':
-                ch = sys.stdin.read(2)
-                if ch == '[A':
+            # Handle special keys (arrow keys return 2 bytes on Windows)
+            if ch in (b'\x00', b'\xe0'):
+                ch2 = msvcrt.getch()
+                if ch2 == b'H':
                     return 'UP'
-                elif ch == '[B':
+                elif ch2 == b'P':
                     return 'DOWN'
-                elif ch == '[C':
+                elif ch2 == b'M':
                     return 'RIGHT'
-                elif ch == '[D':
+                elif ch2 == b'K':
                     return 'LEFT'
 
-            return ch
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            # Decode regular keys
+            try:
+                return ch.decode('utf-8')
+            except:
+                return ''
+        else:
+            # Unix implementation using termios
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(sys.stdin.fileno())
+                ch = sys.stdin.read(1)
+
+                # Handle arrow keys (escape sequences)
+                if ch == '\x1b':
+                    ch = sys.stdin.read(2)
+                    if ch == '[A':
+                        return 'UP'
+                    elif ch == '[B':
+                        return 'DOWN'
+                    elif ch == '[C':
+                        return 'RIGHT'
+                    elif ch == '[D':
+                        return 'LEFT'
+
+                return ch
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
     def _handle_input(self, key: str):
         """Handle user input"""

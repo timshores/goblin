@@ -1,0 +1,4 @@
+# No external dependencies required for basic version
+# Future multiplayer version may need:
+# - websockets
+# - asyncio (built-in)

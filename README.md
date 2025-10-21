@@ -8,6 +8,7 @@ A procedurally generated ASCII text-based strategy game. Move your pieces around
 - **ASCII Graphics**: Classic text-based rendering with different terrain types
 - **Strategic Gameplay**: Control different unit types with unique roles
 - **Abstract Design**: Focus on strategic piece movement and positioning
+- **Cross-Platform**: Works on Windows, Linux, and macOS
 
 ## Terrain Types
 
@@ -39,14 +40,19 @@ git clone <repository-url>
 cd goblin
 
 # No dependencies needed - uses only Python standard library
+# On Linux/macOS:
 python3 main.py
+
+# On Windows:
+python main.py
 ```
 
 ## Usage
 
 ```bash
 # Start with default settings (50x25 map)
-python3 main.py
+python3 main.py  # Linux/macOS
+python main.py   # Windows
 
 # Custom map size
 python3 main.py --width 80 --height 40
@@ -54,6 +60,8 @@ python3 main.py --width 80 --height 40
 # Use a specific seed for reproducible maps
 python3 main.py --seed 12345
 ```
+
+**Note for Windows users**: Use `python` instead of `python3` in all commands.
 
 ## Gameplay
 
